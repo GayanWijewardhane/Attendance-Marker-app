@@ -1,0 +1,17 @@
+{
+  "name": "attendance-marker",
+  "version": "1.0.0",
+  "description": "Attendance Marker for Network Engineers - cloud hosted, works on all devices",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "mongodb": "^6.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
