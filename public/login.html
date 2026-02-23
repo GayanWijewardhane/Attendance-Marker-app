@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Login - Attendance Marker</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* Inline specific tweaks for login page before the global style update */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+    }
+
+    .auth-container {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      text-align: center;
+    }
+
+    .auth-container h2 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      background: #fdfdfd;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #4a90e2;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 10px rgba(74, 144, 226, 0.4);
+    }
+
+    .toggle-link {
+      margin-top: 20px;
+      color: #4a90e2;
+      cursor: pointer;
+      display: inline-block;
+      font-size: 0.9em;
+    }
+
+    .error-msg {
+      color: #e74c3c;
+      font-size: 0.9em;
+      margin-bottom: 15px;
+      display: none;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"
+    integrity="sha512-wC/cunGGDjXSl9OHsu0040D9qwCwP81jt8aB15k+012E2E6fOSlKqQxRYsBfE60S0ZqBPEH0Wn8+28/1d3b0QA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+
+  <!-- Floating 3D Network Nodes Background -->
+  <div class="background-3d">
+    <div class="node node-1"></div>
+    <div class="node node-2"></div>
+    <div class="node node-3"></div>
+  </div>
+
+  <div class="auth-container glass-panel tilt-element" id="loginBox" data-tilt data-tilt-max="10" data-tilt-speed="400"
+    data-tilt-glare="true" data-tilt-max-glare="0.4">
+    <h2>Login</h2>
+    <div class="error-msg" id="loginError"></div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" required>
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" required>
+      </div>
+      <button type="submit" class="btn">Login</button>
+    </form>
+    <div class="toggle-link" onclick="toggleView('registerBox')">Create an account</div>
+  </div>
+
+  <div class="auth-container glass-panel" id="registerBox" style="display: none;" data-tilt data-tilt-max="10"
+    data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.4">
+    <h2>Register</h2>
+    <div class="error-msg" id="registerError"></div>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="regName">Name</label>
+        <input type="text" id="regName" required>
+      </div>
+      <div class="form-group">
+        <label for="regEmail">Email</label>
+        <input type="email" id="regEmail" required>
+      </div>
+      <div class="form-group">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" required>
+      </div>
+      <button type="submit" class="btn">Register</button>
+    </form>
+    <div class="toggle-link" onclick="toggleView('loginBox')">Already have an account? Login</div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+</body>
+
+</html>

@@ -8,6 +8,12 @@ const API = '/api/tasks';
 
 // ============ INIT ============
 document.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem('attendance_token');
+  if (!token) {
+    window.location.href = '/login.html';
+    return;
+  }
+
   const now = new Date();
   viewYear = now.getFullYear();
   viewMonth = now.getMonth(); // 0-indexed
@@ -34,12 +40,25 @@ function nextMonth() {
 }
 
 function updateMonthLabel() {
-  const months = ['January','February','March','April','May','June',
-                  'July','August','September','October','November','December'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
   document.getElementById('currentMonth').textContent = `${months[viewMonth]} ${viewYear}`;
 }
 
 // ============ API ============
+async function authFetch(url, options = {}) {
+  const token = localStorage.getItem('attendance_token');
+  if (!options.headers) options.headers = {};
+  options.headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(url, options);
+  if (res.status === 401 || res.status === 403) {
+    localStorage.removeItem('attendance_token');
+    localStorage.removeItem('attendance_user');
+    window.location.href = '/login.html';
+  }
+  return res;
+}
 async function loadRecords() {
   try {
     const filterStatus = document.getElementById('filterStatus').value;
@@ -47,7 +66,7 @@ async function loadRecords() {
     if (filterStatus) params.set('status', filterStatus);
 
     const url = params.toString() ? `${API}?${params}` : API;
-    const res = await fetch(url);
+    const res = await authFetch(url);
     const allRecords = await res.json();
 
     // Filter to current month/year
@@ -67,7 +86,7 @@ async function loadRecords() {
 }
 
 async function createRecord(data) {
-  const res = await fetch(API, {
+  const res = await authFetch(API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -77,7 +96,7 @@ async function createRecord(data) {
 }
 
 async function updateRecord(id, data) {
-  const res = await fetch(`${API}/${id}`, {
+  const res = await authFetch(`${API}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -88,7 +107,7 @@ async function updateRecord(id, data) {
 
 async function deleteRecord(id) {
   if (!confirm('Delete this attendance record?')) return;
-  await fetch(`${API}/${id}`, { method: 'DELETE' });
+  await authFetch(`${API}/${id}`, { method: 'DELETE' });
   loadRecords();
 }
 
@@ -241,12 +260,13 @@ function renderCards() {
 function startAutoSync() {
   setInterval(async () => {
     try {
-      const res = await fetch('/api/sync');
+      const res = await authFetch('/api/sync');
+      if (!res.ok) return;
       const data = await res.json();
 
       if (!lastSyncData ||
-          lastSyncData.last_update !== data.last_update ||
-          lastSyncData.total !== data.total) {
+        lastSyncData.last_update !== data.last_update ||
+        lastSyncData.total !== data.total) {
         lastSyncData = data;
         loadRecords();
       }
@@ -277,4 +297,35 @@ function esc(text) {
   const d = document.createElement('div');
   d.textContent = text;
   return d.innerHTML;
+}
+
+// ============ UTILS ============
+function logout() {
+  localStorage.removeItem('attendance_token');
+  localStorage.removeItem('attendance_user');
+  window.location.href = '/login.html';
+}
+
+function downloadCSV() {
+  if (records.length === 0) {
+    alert('No records to download for this month.');
+    return;
+  }
+
+  const headers = ['Date', 'Status', 'Tasks', 'Assigned By', 'Notes'];
+  const rows = records.map(r => [
+    r.date, r.status, `"${r.task.replace(/"/g, '""')}"`, `"${r.assigned_by.replace(/"/g, '""')}"`, `"${r.notes.replace(/"/g, '""')}"`
+  ]);
+
+  const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `Attendance_Report_${viewYear}_${viewMonth + 1}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
